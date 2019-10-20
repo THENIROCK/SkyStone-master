@@ -98,11 +98,6 @@ public class BasicOpMode_Linear extends LinearOpMode {
             boolean G1LeftBumper = gamepad1.left_bumper;
 
             // strafe  Mode
-            frontLeftDrive.setPower(G1LeftStickY);
-            backLeftDrive.setPower(G1LeftStickY);
-            frontRightDrive.setPower(G1RightStickY);
-            backRightDrive.setPower(G1RightStickY);
-
             frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
             backLeftDrive.setPower(G1LeftStickY - G1LeftStickX);
             frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
