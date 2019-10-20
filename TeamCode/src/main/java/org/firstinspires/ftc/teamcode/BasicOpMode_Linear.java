@@ -52,7 +52,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private DcMotor backRightDrive = null;
 
     private DcMotor slider = null;
-    private double slidePower;
+    private double slidePower = 1;
     private Servo servo;
     private double servoPower = 0.0;
 
@@ -92,16 +92,21 @@ public class BasicOpMode_Linear extends LinearOpMode {
             // setup the inputs
             double G1LeftStickY = reverseControls * gamepad1.left_stick_y;
             double G1RightStickY = -reverseControls * gamepad1.right_stick_y;
-            double G1LeftStickX = reverseControls * gamepad1.left_stick_x;
+            double G1LeftStickX = -reverseControls * gamepad1.left_stick_x;
             double G1RightStickX = -reverseControls * gamepad1.right_stick_x;
             boolean G1RightBumper = gamepad1.right_bumper;
             boolean G1LeftBumper = gamepad1.left_bumper;
 
             // strafe  Mode
-            frontLeftDrive.setPower(G1LeftStickY + G1RightStickX + G1LeftStickX);
-            backLeftDrive.setPower(G1LeftStickY + G1RightStickX - G1LeftStickX);
-            frontRightDrive.setPower(G1LeftStickY - G1RightStickX - G1LeftStickX);
-            backRightDrive.setPower(G1LeftStickY - G1RightStickX + G1LeftStickX);
+            frontLeftDrive.setPower(G1LeftStickY);
+            backLeftDrive.setPower(G1LeftStickY);
+            frontRightDrive.setPower(G1RightStickY);
+            backRightDrive.setPower(G1RightStickY);
+
+            frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
+            backLeftDrive.setPower(G1LeftStickY - G1LeftStickX);
+            frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
+            backRightDrive.setPower(G1RightStickY + G1LeftStickX);
 
             // Slider controller uses the y button to move out and the a button to retract the slider
             if (gamepad1.y){
