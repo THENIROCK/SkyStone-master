@@ -52,11 +52,11 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private DcMotor backRightDrive = null;
 
     private DcMotor slider = null;
-    double slidePower;
+    private double slidePower;
     private Servo servo;
-    double servoPower = 0.0;
+    private double servoPower = 0.0;
 
-    private int reverseControls = -1;
+    private int reverseControls = 1;
 
     @Override
     public void runOpMode() {
