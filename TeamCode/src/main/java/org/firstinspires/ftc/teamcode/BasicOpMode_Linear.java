@@ -51,6 +51,9 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
 
+    private DcMotor leftIntake = null;
+    private DcMotor rightIntake = null;
+
     private DcMotor slider = null;
     private double slidePower;
     private Servo servo;
@@ -70,6 +73,10 @@ public class BasicOpMode_Linear extends LinearOpMode {
         frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
+
+        leftIntake = hardwareMap.get(DcMotor.class, "left_intake");
+        rightIntake = hardwareMap.get(DcMotor.class, "right_intake");
+
         slider = hardwareMap.get(DcMotor.class, "slider");
         servo = hardwareMap.servo.get("servo");
 
@@ -79,6 +86,10 @@ public class BasicOpMode_Linear extends LinearOpMode {
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        leftIntake.setDirection(DcMotor.Direction.FORWARD);
+        rightIntake.setDirection(DcMotor.Direction.REVERSE);
+
         slider.setDirection((DcMotor.Direction.FORWARD));
         servo.setPosition(servoPower);
 
@@ -116,6 +127,16 @@ public class BasicOpMode_Linear extends LinearOpMode {
             else{
                 slider.setPower(0.0);
             }
+
+            if(gamepad1.right_bumper){
+                leftIntake.setPower(1);
+                rightIntake.setPower(1);
+            }
+            else if(gamepad1.left_bumper){
+                leftIntake.setPower(-1);
+                rightIntake.setPower(-1);
+            }
+
 
             // Change the control direction with the x button
             if (gamepad1.x){
