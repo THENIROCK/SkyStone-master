@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.sql.Time;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous", group="Linear Opmode")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous")
 //@Disabled
 public class Autonomous extends LinearOpMode {
 
@@ -55,6 +55,8 @@ public class Autonomous extends LinearOpMode {
     private DcMotor frontRightDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
+
+    private double motorWeight = 0.65789473684;
 
     private Servo servo;
     double servoPower = 0.5;
@@ -100,9 +102,9 @@ public class Autonomous extends LinearOpMode {
         while (start<time) {
             start = System.currentTimeMillis();
             direction = 1;
-            frontLeftDrive.setPower(direction);
+            frontLeftDrive.setPower(motorWeight*direction);
             backLeftDrive.setPower(direction);
-            frontRightDrive.setPower(direction);
+            frontRightDrive.setPower(motorWeight*direction);
             backRightDrive.setPower(direction);
         }
     }
@@ -112,9 +114,9 @@ public class Autonomous extends LinearOpMode {
         while (start<time) {
             start = System.currentTimeMillis();
             direction = 1;
-            frontLeftDrive.setPower(direction);
+            frontLeftDrive.setPower(motorWeight*direction);
             backLeftDrive.setPower(-direction);
-            frontRightDrive.setPower(-direction);
+            frontRightDrive.setPower(motorWeight*-direction);
             backRightDrive.setPower(direction);
         }
     }
@@ -124,9 +126,9 @@ public class Autonomous extends LinearOpMode {
         while (start<time) {
             start = System.currentTimeMillis();
             direction = 1;
-            frontLeftDrive.setPower(direction);
+            frontLeftDrive.setPower(motorWeight*direction);
             backLeftDrive.setPower(direction);
-            frontRightDrive.setPower(-direction);
+            frontRightDrive.setPower(motorWeight*-direction);
             backRightDrive.setPower(-direction);
         }
     }
