@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.sql.Time;
+asdf
 
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous")
