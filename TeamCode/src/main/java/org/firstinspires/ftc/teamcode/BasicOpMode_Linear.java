@@ -54,8 +54,8 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private DcMotor leftIntake = null;
     private DcMotor rightIntake = null;
 
-    private DcMotor slider = null;
-    private double slidePower = 1;
+    private DcMotor grabberArm = null;
+    private double grabberPower = 1;
     private Servo servo;
     private double servoPower = 0.0;
 
@@ -77,7 +77,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
         leftIntake = hardwareMap.get(DcMotor.class, "left_intake");
         rightIntake = hardwareMap.get(DcMotor.class, "right_intake");
 
-        slider = hardwareMap.get(DcMotor.class, "slider");
+        grabberArm = hardwareMap.get(DcMotor.class, "grabber_arm");
         servo = hardwareMap.servo.get("servo");
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -90,7 +90,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
         leftIntake.setDirection(DcMotor.Direction.FORWARD);
         rightIntake.setDirection(DcMotor.Direction.REVERSE);
 
-        slider.setDirection((DcMotor.Direction.FORWARD));
+        grabberArm.setDirection((DcMotor.Direction.FORWARD));
         servo.setPosition(servoPower);
 
         // Wait for the game to start (driver presses PLAY)
@@ -114,20 +114,18 @@ public class BasicOpMode_Linear extends LinearOpMode {
             frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
             backRightDrive.setPower(G1RightStickY + G1LeftStickX);
 
-            // Slider controller uses the y button to move out and the a button to retract the slider
+            // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
             if (gamepad1.y){
-                slider.setPower(slidePower);
-            }
-            else{
-                slider.setPower(0.0);
+                grabberArm.setPower(grabberPower);
             }
             if (gamepad1.a){
-                slider.setPower(slidePower);
+                grabberArm.setPower(-grabberPower);
             }
             else{
-                slider.setPower(0.0);
+                grabberArm.setPower(0.0);
             }
 
+            //Starts intake motors
             if(gamepad1.right_bumper){
                 leftIntake.setPower(1);
                 rightIntake.setPower(1);
@@ -136,6 +134,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
                 leftIntake.setPower(-1);
                 rightIntake.setPower(-1);
             }
+
 
 
             // Change the control direction with the x button

@@ -42,6 +42,13 @@ import java.sql.Time;
 //@Disabled
 public class Autonomous extends LinearOpMode {
 
+    private static final String VUFORIA_KEY =
+            "AZrcPbL/////AAABmQ7qhHnAOkQDjFldRi+1gXdnIol7PdUHJo1OJXAy+0C23VNo6+UBdsRdJFEpeeHMUjDZgvflIkS92jUqHhtdckNsnbBDGUBjVC5NRweYFvtc9pKmNGwgQLYvKSZwdwBKWhx/i4rYJgWItX0JEcv9lsQ6VzJChbO3VwCyxnwRylI/HkQk21nYDhHaURDE0ogSr8GqDYnoE3F9h5fw/ll0wr5rWSgyxfcsEWg3YvBigLVyzhO/zXwA+4Og98pGaOW9mhTD78B1W0P4NUGD6ywdGP7j9uDepld/wDueVykgqHR8xcZ6VXc7DlkKOHgk8Zr6HqMUzDDsMX457wwFRbDWkYJiIyzXuO7jlpZNQ+mRqvoF";
+
+    // We will define some constants and conversions here
+    private static final float mmPerInch        = 25.4f;
+    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeftDrive = null;
@@ -49,12 +56,8 @@ public class Autonomous extends LinearOpMode {
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
 
-    private DcMotor slider = null;
-    double slidePower;
     private Servo servo;
-    double servoPower = 0.0;
-
-    private int reverseControls = -1;
+    double servoPower = 0.5;
 
     @Override
     public void runOpMode() {
@@ -68,7 +71,7 @@ public class Autonomous extends LinearOpMode {
         frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
-        slider = hardwareMap.get(DcMotor.class, "slider");
+
         servo = hardwareMap.servo.get("servo");
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -77,16 +80,18 @@ public class Autonomous extends LinearOpMode {
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
-        slider.setDirection((DcMotor.Direction.FORWARD));
+
         servo.setPosition(servoPower);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
-        moveStrafe(1, -1);
-        moveForward(3, 1);
-        moveStrafe(1, -1);
+
+
+        moveStrafe(1000, -1);
+        moveForward(3000, 1);
+        moveStrafe(1000, -1);
 
     }
 
