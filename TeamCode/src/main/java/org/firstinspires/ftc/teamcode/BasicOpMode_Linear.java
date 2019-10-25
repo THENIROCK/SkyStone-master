@@ -46,10 +46,15 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
+    // 152 rpm
     private DcMotor frontLeftDrive = null;
+    // 152 rpm
     private DcMotor frontRightDrive = null;
+    // 100 rpm
     private DcMotor backLeftDrive = null;
+    // 100 rpm
     private DcMotor backRightDrive = null;
+    private double motorWeight = 0.65789473684;
 
     private DcMotor leftIntake = null;
     private DcMotor rightIntake = null;
@@ -110,9 +115,9 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
             // strafe  Mode
             frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
-            backLeftDrive.setPower(G1LeftStickY - G1LeftStickX);
+            backLeftDrive.setPower(motorWeight*(G1LeftStickY - G1LeftStickX));
             frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
-            backRightDrive.setPower(G1RightStickY + G1LeftStickX);
+            backRightDrive.setPower(motorWeight*(G1RightStickY + G1LeftStickX));
 
             // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
             if (gamepad1.y){
