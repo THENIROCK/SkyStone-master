@@ -189,17 +189,13 @@ public class Autonomous extends LinearOpMode {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
 
-            moveForward(0, 1);
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
                     targetVisible = true;
                     if(trackable.getName() == "Stone Target"){
-                        servo.setPosition(0.5);
                         telemetry.addData("STONE FOUND", trackable.getName());
-                        moveForward(1000, 0);
                     }
-
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
                     OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
@@ -209,17 +205,13 @@ public class Autonomous extends LinearOpMode {
                     break;
                 }
             }
+
             // Provide feedback as to where the robot is located (if we know).
             if (targetVisible) {
                 // express position (translation) of robot in mm.
                 VectorF translation = lastLocation.getTranslation();
-                float targetX = translation.get(0)/mmPerInch;
-                float targetY = translation.get(1)/mmPerInch;
-                float targetZ = translation.get(2)/mmPerInch;
                 telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                         translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-                telemetry.addData("X", targetX);
-
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
                 telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
@@ -228,6 +220,33 @@ public class Autonomous extends LinearOpMode {
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
+
+            // MAIN CODE GOES HERE
+            moveForward(0, 1);
+
+            for (VuforiaTrackable trackable : allTrackables) {
+                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                    telemetry.addData("Visible Target", trackable.getName());
+                    targetVisible = true;
+                    VectorF translation = lastLocation.getTranslation();
+                    float targetX = translation.get(0)/mmPerInch;
+                    float targetY = translation.get(1)/mmPerInch;
+                    float targetZ = translation.get(2)/mmPerInch;
+                    if(trackable.getName() == "Stone Target"){
+                        servo.setPosition(0.5);
+                        telemetry.addData("STONE FOUND", trackable.getName());
+                        telemetry.addData("X", targetX);
+                        moveForward(1000, 0);
+                    }
+                    // getUpdatedRobotLocation() will return null if no new information is available since
+                    // the last time that call was made, or if the trackable is not currently visible.
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
+                    if (robotLocationTransform != null) {
+                        lastLocation = robotLocationTransform;
+                    }
+                    break;
+                }
+            }
         }
 
 
