@@ -66,7 +66,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private double servoPower = 0.0;
     private Servo grabServo;
 
-    private int reverseControls = 1;
+    private double reverseControls = 1;
 
     @Override
     public void runOpMode() {
@@ -111,19 +111,19 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
             // setup the inputs
             double G1LeftStickY = reverseControls * gamepad1.left_stick_y;
-            double G1RightStickY = -reverseControls * gamepad1.right_stick_y;
+            double G1RightStickY = reverseControls * gamepad1.right_stick_y;
             double G1LeftStickX = -reverseControls * gamepad1.left_stick_x;
             double G1RightStickX = -reverseControls * gamepad1.right_stick_x;
             boolean G1RightBumper = gamepad1.right_bumper;
             boolean G1LeftBumper = gamepad1.left_bumper;
 
-            double G2LeftStickY = gamepad2.left_stick_y * 0.25;
+            double G2LeftStickY = gamepad2.left_stick_y * 0.7;
 
             // strafe  Mode
             frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
-            backLeftDrive.setPower(motorWeight*(G1LeftStickY - G1LeftStickX));
+            backLeftDrive.setPower((G1LeftStickY - G1LeftStickX));
             frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
-            backRightDrive.setPower(motorWeight*(G1RightStickY + G1LeftStickX));
+            backRightDrive.setPower((G1RightStickY + G1LeftStickX));
 
             // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
 
@@ -138,14 +138,16 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
 
             //Starts intake motors
-            if(gamepad1.right_bumper){
+            while (gamepad1.right_bumper){
                 leftIntake.setPower(1);
                 rightIntake.setPower(1);
             }
-            else if(gamepad1.left_bumper){
+            while (gamepad1.left_bumper){
                 leftIntake.setPower(-1);
                 rightIntake.setPower(-1);
             }
+            leftIntake.setPower(0);
+            rightIntake.setPower(0);
 
 
 
@@ -153,6 +155,19 @@ public class BasicOpMode_Linear extends LinearOpMode {
             if (gamepad1.x){
                 reverseControls = -reverseControls;
                 telemetry.addData("Controls Status", "Direction: " + reverseControls);
+            }
+
+
+            if (gamepad1.y){
+                if(reverseControls == 1){
+                    reverseControls = reverseControls*0.5;
+                    telemetry.addData("Controls Status", "SLOW MODE");
+                }
+                else if(reverseControls == 0.5){
+                    reverseControls = reverseControls*2;
+                    telemetry.addData("Controls Status", "FAST MODE");
+                }
+                telemetry.update();
             }
 
             // Show the elapsed game time and wheel power.

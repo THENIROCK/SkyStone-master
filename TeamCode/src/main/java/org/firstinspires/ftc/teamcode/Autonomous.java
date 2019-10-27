@@ -189,7 +189,7 @@ public class Autonomous extends LinearOpMode {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
 
-            moveForward(0, 1);
+            moveForward(0, -1);
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
@@ -233,12 +233,12 @@ public class Autonomous extends LinearOpMode {
 
 
         moveStrafe(1000, 1);
-        moveForward(3000, 1);
+        moveForward(3000, -1);
 
     }
 
     public void moveForward(long time, int direction){
-        frontLeftDrive.setPower(motorWeight*direction);
+        frontLeftDrive.setPower(direction);
         backLeftDrive.setPower(direction);
         frontRightDrive.setPower(motorWeight*direction);
         backRightDrive.setPower(direction);
@@ -247,9 +247,9 @@ public class Autonomous extends LinearOpMode {
     }
 
     public void moveStrafe(long time, int direction){
-        frontLeftDrive.setPower(motorWeight*direction);
+        frontLeftDrive.setPower(direction);
         backLeftDrive.setPower(-direction);
-        frontRightDrive.setPower(motorWeight*-direction);
+        frontRightDrive.setPower(-direction);
         backRightDrive.setPower(direction);
         sleep(time);
         setPower(0);
