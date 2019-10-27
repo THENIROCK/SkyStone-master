@@ -59,6 +59,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous")
 //@Disabled
+
 public class Autonomous extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
@@ -90,18 +91,14 @@ public class Autonomous extends LinearOpMode {
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
-
-
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
-
     private double motorWeight = 0.65789473684;
     private int tetrixTickCount;
-
     private Servo servo;
     double servoPower = 0.0;
 
@@ -162,11 +159,10 @@ public class Autonomous extends LinearOpMode {
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
 
-        /**  Let all the trackable listeners know where the phone is.  */
+        /**  Let all the trackable listeners know where the phone is.  **/
         for (VuforiaTrackable trackable : allTrackables) {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
         }
-
 
         //VUFORIA STUFF FINISHED
 
@@ -186,11 +182,13 @@ public class Autonomous extends LinearOpMode {
         runtime.reset();
 
         targetsSkyStone.activate();
-        moveStrafe(1000, -1);
-        while (!isStopRequested()) {
 
+        moveStrafe(1000, -1);
+
+        while (!isStopRequested()) {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
+
             moveForward(0, 1);
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
@@ -211,22 +209,27 @@ public class Autonomous extends LinearOpMode {
                     break;
                 }
             }
-        }
-        // Provide feedback as to where the robot is located (if we know).
-        if (targetVisible) {
-            // express position (translation) of robot in inches.
-            VectorF translation = lastLocation.getTranslation();
-            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible) {
+                // express position (translation) of robot in mm.
+                VectorF translation = lastLocation.getTranslation();
+                float targetX = translation.get(0)/mmPerInch;
+                float targetY = translation.get(1)/mmPerInch;
+                float targetZ = translation.get(2)/mmPerInch;
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+                telemetry.addData("X", targetX);
 
-            // express the rotation of the robot in degrees.
-            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            }
+            else {
+                telemetry.addData("Visible Target", "none");
+            }
+            telemetry.update();
         }
-        else {
-            telemetry.addData("Visible Target", "none");
-        }
-        telemetry.update();
+
 
 
         moveStrafe(1000, 1);
@@ -250,7 +253,6 @@ public class Autonomous extends LinearOpMode {
         backRightDrive.setPower(direction);
         sleep(time);
         setPower(0);
-
     }
 
     public void moveTurn(long time, int direction){
