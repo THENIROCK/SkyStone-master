@@ -189,6 +189,7 @@ public class Autonomous extends LinearOpMode {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
 
+            // telemetry for identifying trackables
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
@@ -248,8 +249,6 @@ public class Autonomous extends LinearOpMode {
                 }
             }
         }
-
-
 
         moveStrafe(1000, 1);
         moveForward(3000, 1);
