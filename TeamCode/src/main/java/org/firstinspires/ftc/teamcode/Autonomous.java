@@ -120,10 +120,10 @@ public class Autonomous extends LinearOpMode {
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //VUFORIA STUFF
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -196,7 +196,7 @@ public class Autonomous extends LinearOpMode {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
                     targetVisible = true;
-                    if(trackable.getName() == "Stone Target"){
+                    if (trackable.getName() == "Stone Target") {
                         servo.setPosition(0.5);
                         telemetry.addData("STONE FOUND", trackable.getName());
                         moveForward(1000, 0);
@@ -211,26 +211,24 @@ public class Autonomous extends LinearOpMode {
                     break;
                 }
             }
-        }
-        // Provide feedback as to where the robot is located (if we know).
-        if (targetVisible) {
-            // express position (translation) of robot in inches.
-            VectorF translation = lastLocation.getTranslation();
-            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible) {
+                // express position (translation) of robot in inches.
+                VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
 
-            // express the rotation of the robot in degrees.
-            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            } else {
+                telemetry.addData("Visible Target", "none");
+            }
+            telemetry.update();
         }
-        else {
-            telemetry.addData("Visible Target", "none");
-        }
-        telemetry.update();
-
 
         moveStrafe(1000, 1);
-        encoderDrive(3000, 1);
+        moveForward(3000, 1);
 
     }
 
