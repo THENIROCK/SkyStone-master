@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -99,6 +100,7 @@ public class Autonomous extends LinearOpMode {
     private DcMotor backRightDrive = null;
 
     private double motorWeight = 0.65789473684;
+    private int tetrixTickCount;
 
     private Servo servo;
     double servoPower = 0.0;
@@ -117,6 +119,11 @@ public class Autonomous extends LinearOpMode {
         frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
+
+        frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //VUFORIA STUFF
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -179,11 +186,12 @@ public class Autonomous extends LinearOpMode {
         runtime.reset();
 
         targetsSkyStone.activate();
+        moveStrafe(1000, -1);
         while (!isStopRequested()) {
 
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
-            moveStrafe(1000, -1);
+            moveForward(0, 1);
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
@@ -191,8 +199,7 @@ public class Autonomous extends LinearOpMode {
                     if(trackable.getName() == "Stone Target"){
                         servo.setPosition(0.5);
                         telemetry.addData("STONE FOUND", trackable.getName());
-                        moveStrafe(0, 0);
-                        break;
+                        moveForward(1000, 0);
                     }
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
@@ -222,46 +229,74 @@ public class Autonomous extends LinearOpMode {
         telemetry.update();
 
 
-
-        moveForward(3000, 1);
-        moveStrafe(1000, -1);
+        moveStrafe(1000, 1);
+        encoderDrive(3000, 1);
 
     }
 
     public void moveForward(long time, int direction){
-        long start = System.currentTimeMillis();
-        while (start<time) {
-            start = System.currentTimeMillis();
-            direction = 1;
-            frontLeftDrive.setPower(motorWeight*direction);
-            backLeftDrive.setPower(direction);
-            frontRightDrive.setPower(motorWeight*direction);
-            backRightDrive.setPower(direction);
-        }
+        frontLeftDrive.setPower(motorWeight*direction);
+        backLeftDrive.setPower(direction);
+        frontRightDrive.setPower(motorWeight*direction);
+        backRightDrive.setPower(direction);
+        sleep(time);
+        setPower(0);
     }
 
     public void moveStrafe(long time, int direction){
-        long start = System.currentTimeMillis();
-        while (start<time) {
-            start = System.currentTimeMillis();
-            direction = 1;
-            frontLeftDrive.setPower(motorWeight*direction);
-            backLeftDrive.setPower(-direction);
-            frontRightDrive.setPower(motorWeight*-direction);
-            backRightDrive.setPower(direction);
-        }
+        frontLeftDrive.setPower(motorWeight*direction);
+        backLeftDrive.setPower(-direction);
+        frontRightDrive.setPower(motorWeight*-direction);
+        backRightDrive.setPower(direction);
+        sleep(time);
+        setPower(0);
+
     }
 
     public void moveTurn(long time, int direction){
         long start = System.currentTimeMillis();
         while (start<time) {
             start = System.currentTimeMillis();
-            direction = 1;
             frontLeftDrive.setPower(motorWeight*direction);
             backLeftDrive.setPower(direction);
             frontRightDrive.setPower(motorWeight*-direction);
             backRightDrive.setPower(-direction);
         }
+    }
+
+    public void setPower(double power){
+        frontLeftDrive.setPower(motorWeight*power);
+        backLeftDrive.setPower(power);
+        frontRightDrive.setPower(motorWeight*power);
+        backRightDrive.setPower(power);
+    }
+
+    public void encoderDrive(int distance, double power){
+        frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontLeftDrive.setTargetPosition(distance);
+        frontRightDrive.setTargetPosition(distance);
+        backLeftDrive.setTargetPosition(distance);
+        backRightDrive.setTargetPosition(distance);
+
+        setPower(power);
+
+        frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (frontLeftDrive.isBusy() || backLeftDrive.isBusy() || frontRightDrive.isBusy() || backRightDrive.isBusy()){
+            telemetry.addData("Driving", distance);
+            telemetry.update();
+        }
+        setPower(0);
+
+        telemetry.addData("Finished Driving:", distance);
+        telemetry.update();
     }
 
 
