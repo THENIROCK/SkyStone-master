@@ -64,6 +64,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private double grabberPower = 1;
     private Servo servo;
     private double servoPower = 0.0;
+    private Servo grabServo;
 
     private int reverseControls = 1;
 
@@ -85,6 +86,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
         grabberArm = hardwareMap.get(DcMotor.class, "grabber_arm");
         servo = hardwareMap.servo.get("servo");
+        grabServo = hardwareMap.servo.get("grab_servo");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -98,6 +100,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
         grabberArm.setDirection((DcMotor.Direction.FORWARD));
         servo.setPosition(servoPower);
+        grabServo.setPosition(0);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -114,6 +117,8 @@ public class BasicOpMode_Linear extends LinearOpMode {
             boolean G1RightBumper = gamepad1.right_bumper;
             boolean G1LeftBumper = gamepad1.left_bumper;
 
+            double G2LeftStickY = gamepad2.left_stick_y * 0.25;
+
             // strafe  Mode
             frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
             backLeftDrive.setPower(motorWeight*(G1LeftStickY - G1LeftStickX));
@@ -121,15 +126,16 @@ public class BasicOpMode_Linear extends LinearOpMode {
             backRightDrive.setPower(motorWeight*(G1RightStickY + G1LeftStickX));
 
             // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
-            if (gamepad1.y){
-                grabberArm.setPower(grabberPower);
+
+            grabberArm.setPower(G2LeftStickY);
+
+            if(gamepad2.a){
+                servo.setPosition(0.5);
             }
-            if (gamepad1.a){
-                grabberArm.setPower(-grabberPower);
+            if(gamepad2.b){
+                servo.setPosition(0);
             }
-            else{
-                grabberArm.setPower(0.0);
-            }
+
 
             //Starts intake motors
             if(gamepad1.right_bumper){

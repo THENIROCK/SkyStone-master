@@ -252,7 +252,7 @@ public class Autonomous extends LinearOpMode {
 
 
         moveStrafe(1000, 1);
-        encoderDrive(3000, 1);
+        moveForward(3000, 1);
 
     }
 
