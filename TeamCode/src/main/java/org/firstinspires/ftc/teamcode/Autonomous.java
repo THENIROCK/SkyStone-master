@@ -102,6 +102,8 @@ public class Autonomous extends LinearOpMode {
     private Servo servo;
     double servoPower = 0.0;
 
+    boolean stoneDetected = false;
+
     int cameraMonitorViewId = 0;
 
     @Override
@@ -116,6 +118,7 @@ public class Autonomous extends LinearOpMode {
         frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
+        servo = hardwareMap.get(Servo.class, "servo");
 
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -183,21 +186,22 @@ public class Autonomous extends LinearOpMode {
 
         targetsSkyStone.activate();
 
-        moveStrafe(1000, -1);
-
+        moveStrafe(800, 0.25);
         while (!isStopRequested()) {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
 
-            moveForward(0, -1);
+            moveForward(0, 0.10);
             for (VuforiaTrackable trackable : allTrackables) {
+
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
                     targetVisible = true;
                     if(trackable.getName() == "Stone Target"){
-                        servo.setPosition(0.5);
                         telemetry.addData("STONE FOUND", trackable.getName());
-                        moveForward(1000, 0);
+                        moveForward(200, 0.25);
+                        moveForward(2000, 0);
+                        stoneDetected = true;
                     }
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
@@ -206,8 +210,8 @@ public class Autonomous extends LinearOpMode {
                     if (robotLocationTransform != null) {
                         lastLocation = robotLocationTransform;
                     }
-                    break;
                 }
+
             }
             // Provide feedback as to where the robot is located (if we know).
             if (targetVisible) {
@@ -228,25 +232,40 @@ public class Autonomous extends LinearOpMode {
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
+
+            // break the while loop
+            if(stoneDetected){
+                break;
+            }
         }
 
 
 
-        moveStrafe(1000, 1);
-        moveForward(3000, -1);
+        moveStrafe(800, 0.5);
+        sleep(1000);
+        telemetry.addData("ROBOT", "IN POSITION");
+        telemetry.update();
+        servo.setPosition(0.6);
+        sleep(1000);
+        moveStrafe(2000, -0.5);
+        moveForward(1500, 0.5);
+        servo.setPosition(0);
+        telemetry.addData("ROBOT", "BLOCK RELEASED");
+        telemetry.update();
+
 
     }
 
-    public void moveForward(long time, int direction){
+    public void moveForward(long time, double direction){
         frontLeftDrive.setPower(direction);
         backLeftDrive.setPower(direction);
-        frontRightDrive.setPower(motorWeight*direction);
+        frontRightDrive.setPower(direction);
         backRightDrive.setPower(direction);
         sleep(time);
         setPower(0);
     }
 
-    public void moveStrafe(long time, int direction){
+    public void moveStrafe(long time, double direction){
         frontLeftDrive.setPower(direction);
         backLeftDrive.setPower(-direction);
         frontRightDrive.setPower(-direction);
@@ -259,17 +278,17 @@ public class Autonomous extends LinearOpMode {
         long start = System.currentTimeMillis();
         while (start<time) {
             start = System.currentTimeMillis();
-            frontLeftDrive.setPower(motorWeight*direction);
+            frontLeftDrive.setPower(direction);
             backLeftDrive.setPower(direction);
-            frontRightDrive.setPower(motorWeight*-direction);
+            frontRightDrive.setPower(-direction);
             backRightDrive.setPower(-direction);
         }
     }
 
     public void setPower(double power){
-        frontLeftDrive.setPower(motorWeight*power);
+        frontLeftDrive.setPower(power);
         backLeftDrive.setPower(power);
-        frontRightDrive.setPower(motorWeight*power);
+        frontRightDrive.setPower(power);
         backRightDrive.setPower(power);
     }
 

@@ -100,7 +100,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
         grabberArm.setDirection((DcMotor.Direction.FORWARD));
         servo.setPosition(servoPower);
-        grabServo.setPosition(0);
+        grabServo.setPosition(0.4);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -130,21 +130,27 @@ public class BasicOpMode_Linear extends LinearOpMode {
             grabberArm.setPower(G2LeftStickY);
 
             if(gamepad2.a){
-                servo.setPosition(0.5);
+                grabServo.setPosition(1);
             }
             if(gamepad2.b){
+                grabServo.setPosition(0.8);
+            }
+
+            if(gamepad1.a){
+                servo.setPosition(0.6);
+            }
+            else if(gamepad1.b){
                 servo.setPosition(0);
             }
 
-
             //Starts intake motors
-            while (gamepad1.right_bumper){
-                leftIntake.setPower(1);
-                rightIntake.setPower(1);
-            }
-            while (gamepad1.left_bumper){
+            if (gamepad1.right_bumper){
                 leftIntake.setPower(-1);
                 rightIntake.setPower(-1);
+            }
+            if (gamepad1.left_bumper){
+                leftIntake.setPower(0);
+                rightIntake.setPower(0);
             }
             leftIntake.setPower(0);
             rightIntake.setPower(0);
