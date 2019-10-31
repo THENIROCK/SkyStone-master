@@ -193,7 +193,8 @@ public class Autonomous extends LinearOpMode {
 
         targetsSkyStone.activate();
 
-        moveStrafe(800, 0.5);
+        moveStrafe(500, 1);
+        moveForward(100, 1);
         while (!isStopRequested()) {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
@@ -208,6 +209,7 @@ public class Autonomous extends LinearOpMode {
                         telemetry.addData("STONE FOUND", trackable.getName());
                         moveForward(200, 0.25);
                         moveForward(2000, 0);
+
                         stoneDetected = true;
                     }
 
@@ -252,20 +254,22 @@ public class Autonomous extends LinearOpMode {
         sleep(1000);
         telemetry.addData("ROBOT", "IN POSITION");
         telemetry.update();
-        servo.setPosition(0.6);
+        servo.setPosition(0.55);
         sleep(1000);
         moveStrafe(1250, -0.5);
         moveForward(1500, 0.5);
         servo.setPosition(0);
         telemetry.addData("ROBOT", "BLOCK RELEASED");
         telemetry.update();
-        moveForward(800, 1);
+        moveForward(1500, 1);
         moveStrafe(800, 0.5);
         servo.setPosition(1);
+
+        colors = colorSensor.getNormalizedColors();
         while (colors.blue < 0.003) {
             colors = colorSensor.getNormalizedColors();
             telemetry.addLine().addData("MOVING UNTIL LINE", "BLUE:", colors.blue);
-            moveStrafe(0, 0.5);
+            moveStrafe(0, -0.5);
         }
         servo.setPosition(0);
 
