@@ -30,13 +30,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -48,7 +43,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,13 +54,13 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="BlueAutonomous")
 //@Disabled
 
-public class Autonomous extends LinearOpMode {
+public class BlueAutonomous extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
-    private static final boolean PHONE_IS_PORTRAIT = true;
+    private static final boolean PHONE_IS_PORTRAIT = false;
     private static final String VUFORIA_KEY =
             "AZrcPbL/////AAABmQ7qhHnAOkQDjFldRi+1gXdnIol7PdUHJo1OJXAy+0C23VNo6+UBdsRdJFEpeeHMUjDZgvflIkS92jUqHhtdckNsnbBDGUBjVC5NRweYFvtc9pKmNGwgQLYvKSZwdwBKWhx/i4rYJgWItX0JEcv9lsQ6VzJChbO3VwCyxnwRylI/HkQk21nYDhHaURDE0ogSr8GqDYnoE3F9h5fw/ll0wr5rWSgyxfcsEWg3YvBigLVyzhO/zXwA+4Og98pGaOW9mhTD78B1W0P4NUGD6ywdGP7j9uDepld/wDueVykgqHR8xcZ6VXc7DlkKOHgk8Zr6HqMUzDDsMX457wwFRbDWkYJiIyzXuO7jlpZNQ+mRqvoF";
 
@@ -100,14 +94,12 @@ public class Autonomous extends LinearOpMode {
     private DcMotor frontRightDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
-    private NormalizedColorSensor colorSensor = null;
     private double motorWeight = 0.65789473684;
     private int tetrixTickCount;
     private Servo servo;
     double servoPower = 0.0;
 
     boolean stoneDetected = false;
-    private NormalizedRGBA colors;
 
     int cameraMonitorViewId = 0;
 
@@ -124,13 +116,11 @@ public class Autonomous extends LinearOpMode {
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
         servo = hardwareMap.get(Servo.class, "servo");
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
 
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
 
         //VUFORIA STUFF
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -198,7 +188,7 @@ public class Autonomous extends LinearOpMode {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
 
-            moveForward(0, 0.10);
+            moveForward(0, -0.10);
             for (VuforiaTrackable trackable : allTrackables) {
 
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
@@ -206,7 +196,7 @@ public class Autonomous extends LinearOpMode {
                     targetVisible = true;
                     if(trackable.getName() == "Stone Target"){
                         telemetry.addData("STONE FOUND", trackable.getName());
-                        moveForward(200, 0.25);
+                        moveForward(200, -0.20);
                         moveForward(2000, 0);
                         stoneDetected = true;
                     }
@@ -255,30 +245,13 @@ public class Autonomous extends LinearOpMode {
         servo.setPosition(0.6);
         sleep(1000);
         moveStrafe(1250, -0.5);
-        moveForward(1500, 0.5);
+        moveForward(1500, -0.5);
         servo.setPosition(0);
         telemetry.addData("ROBOT", "BLOCK RELEASED");
         telemetry.update();
-        moveForward(800, 1);
-        moveStrafe(800, 0.5);
-        servo.setPosition(1);
-        while (colors.blue < 0.003) {
-            colors = colorSensor.getNormalizedColors();
-            telemetry.addLine().addData("MOVING UNTIL LINE", "BLUE:", colors.blue);
-            moveStrafe(0, 0.5);
-        }
-        servo.setPosition(0);
-
-        while (colors.blue < 0.003) {
-            colors = colorSensor.getNormalizedColors();
-            telemetry.addLine().addData("MOVING UNTIL LINE", "BLUE:", colors.blue);
-            moveForward(0, -0.5);
-        }
-
 
 
     }
-
 
     public void moveForward(long time, double direction){
         frontLeftDrive.setPower(direction);

@@ -62,9 +62,13 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
     private DcMotor grabberArm = null;
     private double grabberPower = 1;
+
+    private DcMotor linLift = null;
+
     private Servo servo;
-    private double servoPower = 0.0;
     private Servo grabServo;
+    private Servo leftLiftServo;
+    private Servo rightLiftServo;
 
     private double reverseControls = 1;
 
@@ -84,9 +88,13 @@ public class BasicOpMode_Linear extends LinearOpMode {
         leftIntake = hardwareMap.get(DcMotor.class, "left_intake");
         rightIntake = hardwareMap.get(DcMotor.class, "right_intake");
 
+        linLift = hardwareMap.get(DcMotor.class, "lin_lift");
+
         grabberArm = hardwareMap.get(DcMotor.class, "grabber_arm");
         servo = hardwareMap.servo.get("servo");
         grabServo = hardwareMap.servo.get("grab_servo");
+        leftLiftServo = hardwareMap.servo.get("left_lift_servo");
+        rightLiftServo = hardwareMap.servo.get("right_lift_servo");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -99,8 +107,6 @@ public class BasicOpMode_Linear extends LinearOpMode {
         rightIntake.setDirection(DcMotor.Direction.REVERSE);
 
         grabberArm.setDirection((DcMotor.Direction.FORWARD));
-        servo.setPosition(servoPower);
-        grabServo.setPosition(0.4);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -118,22 +124,39 @@ public class BasicOpMode_Linear extends LinearOpMode {
             boolean G1LeftBumper = gamepad1.left_bumper;
 
             double G2LeftStickY = gamepad2.left_stick_y * 0.7;
+            double G2RightStickY = -reverseControls * gamepad1.right_stick_x;
 
             // strafe  Mode
-            frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
-            backLeftDrive.setPower((G1LeftStickY - G1LeftStickX));
-            frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
-            backRightDrive.setPower((G1RightStickY + G1LeftStickX));
+            frontLeftDrive.setPower(G1LeftStickY - G1LeftStickX);
+            backLeftDrive.setPower((G1LeftStickY + G1LeftStickX));
+            frontRightDrive.setPower(G1RightStickY + G1LeftStickX);
+            backRightDrive.setPower((G1RightStickY - G1LeftStickX));
 
             // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
 
-            grabberArm.setPower(G2LeftStickY);
+            if(gamepad2.right_bumper){
+                grabberPower = -0.3;
+            }
+            else{
+                grabberPower = 1;
+            }
+            grabberArm.setPower(G2LeftStickY*grabberPower);
+            linLift.setPower(G2RightStickY);
 
             if(gamepad2.a){
                 grabServo.setPosition(1);
             }
             if(gamepad2.b){
                 grabServo.setPosition(0.8);
+            }
+
+            if(gamepad2.x){
+                leftLiftServo.setPosition(0.5);
+                rightLiftServo.setPosition(0.5);
+            }
+            if(gamepad2.y){
+                rightLiftServo.setPosition(1);
+                leftLiftServo.setPosition(1);
             }
 
             if(gamepad1.a){
@@ -147,13 +170,13 @@ public class BasicOpMode_Linear extends LinearOpMode {
             if (gamepad1.right_bumper){
                 leftIntake.setPower(-1);
                 rightIntake.setPower(-1);
+                grabberArm.setPower(0.7);
             }
             if (gamepad1.left_bumper){
                 leftIntake.setPower(0);
                 rightIntake.setPower(0);
+                grabberArm.setPower(0);
             }
-            leftIntake.setPower(0);
-            rightIntake.setPower(0);
 
 
 

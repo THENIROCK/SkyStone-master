@@ -151,6 +151,7 @@ public class SensorColor extends LinearOpMode {
               .addData("r", "%.3f", colors.red)
               .addData("g", "%.3f", colors.green)
               .addData("b", "%.3f", colors.blue);
+      //0.008, 0.002, 0.002, 0.003
 
       /** We also display a conversion of the colors to an equivalent Android color integer.
        * @see Color */
