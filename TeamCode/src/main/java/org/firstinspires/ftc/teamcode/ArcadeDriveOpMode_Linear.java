@@ -116,10 +116,10 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
             double G2LeftStickY = gamepad2.left_stick_y * 0.25;
 
             // strafe  Mode
-            frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
-            backLeftDrive.setPower(motorWeight*(G1LeftStickY - G1LeftStickX));
-            frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
-            backRightDrive.setPower(motorWeight*(G1RightStickY + G1LeftStickX));
+            frontLeftDrive.setPower(G1LeftStickY + G1RightStickX + G1LeftStickX);
+            backLeftDrive.setPower(G1LeftStickY + G1RightStickX - G1LeftStickX);
+            frontRightDrive.setPower(G1LeftStickY - G1RightStickX - G1LeftStickX);
+            backRightDrive.setPower(G1LeftStickY - G1RightStickX + G1LeftStickX);
 
             // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
 
