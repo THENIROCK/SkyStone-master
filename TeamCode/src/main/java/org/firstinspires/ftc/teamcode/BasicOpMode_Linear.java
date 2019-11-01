@@ -154,7 +154,7 @@ public class BasicOpMode_Linear extends LinearOpMode {
             }
 
             //Sets arm power with triggers
-            grabberArm.setPower(G2LeftTrigger+G2RightTrigger);
+            grabberArm.setPower((G2LeftTrigger+G2RightTrigger)*0.7);
             //Sets linlift power to right stick
             linLift.setPower(G2RightStickY);
 
@@ -191,11 +191,17 @@ public class BasicOpMode_Linear extends LinearOpMode {
                 rightIntake.setPower(-1);
                 grabberArm.setPower(0.7);
             }
+            if (gamepad1.left_trigger > 0){
+                leftIntake.setPower(1);
+                rightIntake.setPower(1);
+                grabberArm.setPower(0.7);
+            }
             if (gamepad1.left_bumper){
                 leftIntake.setPower(0);
                 rightIntake.setPower(0);
                 grabberArm.setPower(0);
             }
+
 
 
 
