@@ -29,19 +29,25 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name="Arcade Drive", group="Linear Opmode")
+@TeleOp(name="Arcade Linear OpMode", group="Linear Opmode")
 //@Disabled
-public class ArcadeDriveOpMode_Linear extends LinearOpMode {
+public class ArcadeOpMode_Linear extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
+
+    //Drive motors for mecanum wheels
     // 152 rpm
     private DcMotor frontLeftDrive = null;
     // 152 rpm
@@ -53,16 +59,28 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
 
     private double motorWeight = 0.65789473684;
 
+    //Two intake motors
     private DcMotor leftIntake = null;
     private DcMotor rightIntake = null;
 
+    //Grabber arm motor and power
     private DcMotor grabberArm = null;
     private double grabberPower = 1;
+
+    //Linear lift motor
+    private DcMotor linLift = null;
+
+    //Servo for hooking block from side
     private Servo servo;
-    private double servoPower = 0.0;
+    //Servo for grabbing with arm
     private Servo grabServo;
 
-    private int reverseControls = 1;
+    //Two servos for linear lift chopsticks
+    private Servo leftLiftServo;
+    private Servo rightLiftServo;
+
+    //Reverse controls modifier
+    private double reverseControls = 1;
 
     @Override
     public void runOpMode() {
@@ -80,9 +98,13 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
         leftIntake = hardwareMap.get(DcMotor.class, "left_intake");
         rightIntake = hardwareMap.get(DcMotor.class, "right_intake");
 
+        linLift = hardwareMap.get(DcMotor.class, "lin_lift");
+
         grabberArm = hardwareMap.get(DcMotor.class, "grabber_arm");
         servo = hardwareMap.servo.get("servo");
         grabServo = hardwareMap.servo.get("grab_servo");
+        leftLiftServo = hardwareMap.servo.get("left_lift_servo");
+        rightLiftServo = hardwareMap.servo.get("right_lift_servo");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -95,8 +117,7 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
         rightIntake.setDirection(DcMotor.Direction.REVERSE);
 
         grabberArm.setDirection((DcMotor.Direction.FORWARD));
-        servo.setPosition(servoPower);
-        grabServo.setPosition(0);
+        linLift.setDirection((DcMotor.Direction.FORWARD));
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -114,6 +135,10 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
             boolean G1LeftBumper = gamepad1.left_bumper;
 
             double G2LeftStickY = gamepad2.left_stick_y * 0.25;
+            double G2RightStickY = gamepad2.right_stick_y;
+
+            double G2RightTrigger = gamepad2.right_trigger;
+            double G2LeftTrigger = -gamepad2.left_trigger;
 
             // strafe  Mode
             frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
@@ -121,27 +146,63 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
             frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
             backRightDrive.setPower(motorWeight*(G1RightStickY + G1LeftStickX));
 
-            // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
+            //Stops arm from falling with gravity
+            if(gamepad2.right_bumper){
+                grabberPower = -0.3;
+            }
+            else{
+                grabberPower = 1;
+            }
 
-            grabberArm.setPower(G2LeftStickY);
+            //Sets arm power with triggers
+            grabberArm.setPower((G2LeftTrigger+G2RightTrigger)*0.7);
+            //Sets linlift power to right stick
+            linLift.setPower(G2RightStickY);
 
+            //grabs block on a and releases on b
             if(gamepad2.a){
-                servo.setPosition(0.5);
+                grabServo.setPosition(1);
             }
             if(gamepad2.b){
+                grabServo.setPosition(0.8);
+            }
+
+            if(gamepad2.x){
+                //lin lift servo close
+                leftLiftServo.setPosition(0.5);
+                rightLiftServo.setPosition(-0.5);
+            }
+            if(gamepad2.y){
+                //lin lift servo open
+                rightLiftServo.setPosition(1);
+                leftLiftServo.setPosition(-1);
+            }
+
+            //side block servo open and close
+            if(gamepad1.a){
+                servo.setPosition(0.6);
+            }
+            else if(gamepad1.b){
                 servo.setPosition(0);
             }
 
-
-            //Starts intake motors
-            if(gamepad1.right_bumper){
-                leftIntake.setPower(1);
-                rightIntake.setPower(1);
-            }
-            else if(gamepad1.left_bumper){
+            //Starts intake motors and lifts grabber arm
+            if (gamepad1.right_bumper){
                 leftIntake.setPower(-1);
                 rightIntake.setPower(-1);
+                grabberArm.setPower(0.7);
             }
+            if (gamepad1.left_trigger > 0){
+                leftIntake.setPower(1);
+                rightIntake.setPower(1);
+                grabberArm.setPower(0.7);
+            }
+            if (gamepad1.left_bumper){
+                leftIntake.setPower(0);
+                rightIntake.setPower(0);
+                grabberArm.setPower(0);
+            }
+
 
 
 
@@ -151,6 +212,20 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
                 telemetry.addData("Controls Status", "Direction: " + reverseControls);
             }
 
+
+            //Adds slowing modifier to controls when y is pressed and removes when y is pressed again
+            if (gamepad1.y){
+                if(reverseControls == 1){
+                    reverseControls = reverseControls*0.5;
+                    telemetry.addData("Controls Status", "SLOW MODE");
+                }
+                else if(reverseControls == 0.5){
+                    reverseControls = reverseControls*2;
+                    telemetry.addData("Controls Status", "FAST MODE");
+                }
+                telemetry.update();
+            }
+
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
 //            telemetry.addData("Motors", "left (%.2f), right (%.2f)", data);
@@ -158,3 +233,4 @@ public class ArcadeDriveOpMode_Linear extends LinearOpMode {
         }
     }
 }
+
