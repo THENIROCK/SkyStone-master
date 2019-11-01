@@ -52,9 +52,9 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private DcMotor frontLeftDrive = null;
     // 152 rpm
     private DcMotor frontRightDrive = null;
-    // 100 rpm
+    // 152 rpm
     private DcMotor backLeftDrive = null;
-    // 100 rpm
+    // 152 rpm
     private DcMotor backRightDrive = null;
 
     private double motorWeight = 0.65789473684;
