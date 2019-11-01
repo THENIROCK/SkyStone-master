@@ -42,7 +42,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Arcade Linear OpMode", group="Linear Opmode")
 //@Disabled
-public class ArcadeOpMode_Linear extends LinearOpMode {
+public class ArcadeDriveOpMode_Linear extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
