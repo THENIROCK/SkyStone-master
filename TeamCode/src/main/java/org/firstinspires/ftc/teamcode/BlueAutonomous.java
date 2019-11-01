@@ -60,10 +60,10 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="BlueAutonomous")
 //@Disabled
 
-public class Autonomous extends LinearOpMode {
+public class BlueAutonomous extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
     private static final boolean PHONE_IS_PORTRAIT = true;
@@ -193,12 +193,13 @@ public class Autonomous extends LinearOpMode {
 
         targetsSkyStone.activate();
 
-        moveStrafe(700, 1);
+        moveStrafe(500, 1);
+        moveForward(100, -1);
         while (!isStopRequested()) {
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
 
-            moveForward(0, 0.10);
+            moveForward(0, -0.10);
             for (VuforiaTrackable trackable : allTrackables) {
 
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
@@ -206,7 +207,7 @@ public class Autonomous extends LinearOpMode {
                     targetVisible = true;
                     if(trackable.getName() == "Stone Target"){
                         telemetry.addData("STONE FOUND", trackable.getName());
-                        moveForward(150, 0.25);
+                        moveForward(200, -0.25);
                         moveForward(2000, 0);
 
                         stoneDetected = true;
@@ -248,45 +249,34 @@ public class Autonomous extends LinearOpMode {
         }
 
 
-        //moves in towards blocks
-        moveStrafe(500, 0.5);
+
+        moveStrafe(700, 0.5);
         sleep(1000);
         telemetry.addData("ROBOT", "IN POSITION");
         telemetry.update();
-        //flicks servo down
-        servo.setPosition(0.6);
-        telemetry.addData("ROBOT", "BLOCK GRABBED");
-        telemetry.update();
+        servo.setPosition(0.55);
         sleep(1000);
-        //takes block over the line
         moveStrafe(1250, -0.5);
-        moveForward(1750, 0.5);
-        //releases block
+        moveForward(1500, -0.5);
         servo.setPosition(0);
         telemetry.addData("ROBOT", "BLOCK RELEASED");
         telemetry.update();
-        moveStrafe(200, -0.5);
-        /*//moves towards foundation
-        moveForward(1500, 1);
-        moveStrafe(700, 0.5);
-        //flips servo down to grab foundation
-        sleep(1000);
+        moveForward(1500, -1);
+        moveStrafe(800, 0.5);
         servo.setPosition(1);
 
-        //moves foundation until building zone is reached
         colors = colorSensor.getNormalizedColors();
-        while (colors.blue < 0.003) {
+        while (colors.red < 0.003) {
             colors = colorSensor.getNormalizedColors();
             telemetry.addLine().addData("MOVING UNTIL LINE", "BLUE:", colors.blue);
-            moveStrafe(0, -0.5);
+            moveStrafe(0, -1);
         }
-        servo.setPosition(0);*/
+        servo.setPosition(0);
 
-        //moves back until line is reached
-        while (colors.blue < 0.003) {
+        while (colors.red < 0.003) {
             colors = colorSensor.getNormalizedColors();
             telemetry.addLine().addData("MOVING UNTIL LINE", "BLUE:", colors.blue);
-            moveForward(0, -0.5);
+            moveForward(0, 0.5);
         }
 
 
