@@ -57,11 +57,12 @@ public class BasicOpMode_Linear extends LinearOpMode {
 
     private double motorWeight = 0.65789473684;
 
-    private DcMotor leftIntake = null;
-    private DcMotor rightIntake = null;
+    //lift variables
+    private DcMotor liftMotor = null;
+    private DcMotor slideMotor = null;
+    int liftPosition = 0;
+    int slidePosition = 0;
 
-    private DcMotor grabberArm = null;
-    private double grabberPower = 1;
     private Servo servo;
     private double servoPower = 0.0;
     private Servo grabServo;
@@ -81,10 +82,9 @@ public class BasicOpMode_Linear extends LinearOpMode {
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
-        leftIntake = hardwareMap.get(DcMotor.class, "left_intake");
-        rightIntake = hardwareMap.get(DcMotor.class, "right_intake");
+        liftMotor = hardwareMap.get(DcMotor.class, "lift_motor");
+        slideMotor = hardwareMap.get(DcMotor.class, "slide_motor");
 
-        grabberArm = hardwareMap.get(DcMotor.class, "grabber_arm");
         servo = hardwareMap.servo.get("servo");
         grabServo = hardwareMap.servo.get("grab_servo");
 
@@ -95,11 +95,17 @@ public class BasicOpMode_Linear extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        leftIntake.setDirection(DcMotor.Direction.FORWARD);
-        rightIntake.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor.setDirection(DcMotor.Direction.FORWARD);
+        slideMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        grabberArm.setDirection((DcMotor.Direction.FORWARD));
-        servo.setPosition(servoPower);
+        liftMotor.setDirection(DcMotor.Direction.FORWARD);
+        slideMotor.setDirection(DcMotor.Direction.FORWARD);
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+
+        servo.setPosition(0.5);
         grabServo.setPosition(0);
 
         // Wait for the game to start (driver presses PLAY)
@@ -117,38 +123,29 @@ public class BasicOpMode_Linear extends LinearOpMode {
             boolean G1RightBumper = gamepad1.right_bumper;
             boolean G1LeftBumper = gamepad1.left_bumper;
 
-            double G2LeftStickY = gamepad2.left_stick_y * 0.7;
+            double G2LeftStickY = gamepad2.left_stick_y * 0.2;
+            double G2RightStickY = gamepad2.right_stick_y * 0.2;
 
             // strafe  Mode
-            frontLeftDrive.setPower(G1LeftStickY + G1LeftStickX);
-            backLeftDrive.setPower((G1LeftStickY - G1LeftStickX));
-            frontRightDrive.setPower(G1RightStickY - G1LeftStickX);
-            backRightDrive.setPower((G1RightStickY + G1LeftStickX));
+            frontLeftDrive.setPower(G1LeftStickY + G1RightStickX + G1LeftStickX);
+            backLeftDrive.setPower(G1LeftStickY + G1RightStickX - G1LeftStickX);
+            backRightDrive.setPower(G1LeftStickY - G1RightStickX + G1LeftStickX);
+            frontRightDrive.setPower(G1LeftStickY - G1RightStickX - G1LeftStickX);
+
 
             // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
 
-            grabberArm.setPower(G2LeftStickY);
+            //liftMotor.setPower(G2LeftStickY);
+            //slideMotor.setPower(G2RightStickY);
 
             if(gamepad2.a){
+                grabServo.setPosition(0);
                 servo.setPosition(0.5);
             }
             if(gamepad2.b){
+                grabServo.setPosition(0.5);
                 servo.setPosition(0);
             }
-
-
-            //Starts intake motors
-            while (gamepad1.right_bumper){
-                leftIntake.setPower(1);
-                rightIntake.setPower(1);
-            }
-            while (gamepad1.left_bumper){
-                leftIntake.setPower(-1);
-                rightIntake.setPower(-1);
-            }
-            leftIntake.setPower(0);
-            rightIntake.setPower(0);
-
 
 
             // Change the control direction with the x button
@@ -169,6 +166,46 @@ public class BasicOpMode_Linear extends LinearOpMode {
                 }
                 telemetry.update();
             }
+
+            /*if(G2LeftStickY == 0){
+                liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                liftMotor.setTargetPosition(liftMotor.getCurrentPosition());
+                liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            else {
+                liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }*/
+
+            double liftPower;
+            double slidePower;
+            int sensitivity = 10; //360 will move from 0 to 90 degrees in joystick position 0 to 1.
+            int liftLimit = 1080;
+            int slideLimit = 720;
+
+            // YOU MAY NEED TO CHANGE THE DIRECTION OF THIS STICK. RIGHT NOW IT IS NEGATIVE.
+            double liftStick = -gamepad2.left_stick_y;
+            double slideStick = -gamepad2.right_stick_y;
+            liftPower = Range.clip(liftStick, -1.0, 1.0) ;
+            slidePower = Range.clip(slideStick, -1.0, 1.0);
+
+            liftPosition += (int)liftPower*sensitivity;
+            slidePosition += (int)slidePower*sensitivity;
+
+            liftPosition = Range.clip(liftPosition, 0, liftLimit);
+            slidePosition = Range.clip(slidePosition, 0, slideLimit);
+
+            // MOVES UP FROM POSITION 0 TO 90 DEGREES UP.
+            liftMotor.setTargetPosition(liftPosition);
+            liftMotor.setPower(0.4);
+            slideMotor.setTargetPosition(slidePosition);
+            slideMotor.setPower(0.4);
+
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());

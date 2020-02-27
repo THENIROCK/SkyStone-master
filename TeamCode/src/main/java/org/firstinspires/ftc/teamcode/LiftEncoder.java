@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class LiftEncoder extends LinearOpMode {
 
-    private ElapsedTime runtime = new ElapsedTime();
     private DcMotor liftMotor;
     int liftPosition = 0;
 
@@ -26,28 +25,27 @@ public class LiftEncoder extends LinearOpMode {
         // YOU'LL NEED TO TEST IT TO SEE WHICH DIRECTION IT SHOULD BE
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         telemetry.addData("Mode", "waiting");
         telemetry.update();
 
         waitForStart();
-        runtime.reset();
 
         while (opModeIsActive()) {
-            telemetry.addData("Mode", "Started");
             double liftPower;
             int sensitivity = 360; //360 will move from 0 to 90 degrees in joystick position 0 to 1.
 
             // YOU MAY NEED TO CHANGE THE DIRECTION OF THIS STICK. RIGHT NOW IT IS NEGATIVE.
             double liftStick = -gamepad2.left_stick_y;
             liftPower    = Range.clip(liftStick, -1.0, 1.0) ;
-            telemetry.addData("LiftPower", liftPower);
+
             liftPosition += (int)liftPower*sensitivity;
             liftPosition = Range.clip(liftPosition, 0, 360);
 
             // MOVES UP FROM POSITION 0 TO 90 DEGREES UP.
             liftMotor.setTargetPosition(liftPosition);
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftMotor.setPower(0.2);
         }
     }
 }
