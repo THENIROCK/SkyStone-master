@@ -58,11 +58,12 @@ public class BasicOpMode_Linear extends LinearOpMode {
     private double motorWeight = 0.65789473684;
 
     //lift variables
-    private DcMotor liftMotor = null;
-    private DcMotor slideMotor = null;
-    int liftPosition = 0;
-    int slidePosition = 0;
+    private DcMotor TLiftMotor = null;
+    private DcMotor BLiftMotor = null;
+    int TLiftPosition = 0;
+    int BLiftPosition = 0;
 
+    //Servo variables
     private Servo servo;
     private double servoPower = 0.0;
     private Servo grabServo;
@@ -82,8 +83,8 @@ public class BasicOpMode_Linear extends LinearOpMode {
         backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
-        liftMotor = hardwareMap.get(DcMotor.class, "lift_motor");
-        slideMotor = hardwareMap.get(DcMotor.class, "slide_motor");
+        TLiftMotor = hardwareMap.get(DcMotor.class, "lift_motor");
+        BLiftMotor = hardwareMap.get(DcMotor.class, "slide_motor");
 
         servo = hardwareMap.servo.get("servo");
         grabServo = hardwareMap.servo.get("grab_servo");
@@ -95,16 +96,12 @@ public class BasicOpMode_Linear extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        liftMotor.setDirection(DcMotor.Direction.FORWARD);
-        slideMotor.setDirection(DcMotor.Direction.FORWARD);
+        TLiftMotor.setDirection(DcMotor.Direction.FORWARD);
+        BLiftMotor.setDirection(DcMotor.Direction.FORWARD);
+        TLiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BLiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        liftMotor.setDirection(DcMotor.Direction.FORWARD);
-        slideMotor.setDirection(DcMotor.Direction.FORWARD);
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
-
+        // Set up initial servo positions
         servo.setPosition(0.5);
         grabServo.setPosition(0);
 
@@ -116,28 +113,49 @@ public class BasicOpMode_Linear extends LinearOpMode {
         while (opModeIsActive()) {
 
             // setup the inputs
-            double G1LeftStickY = reverseControls * gamepad1.left_stick_y;
-            double G1RightStickY = reverseControls * gamepad1.right_stick_y;
-            double G1LeftStickX = -reverseControls * gamepad1.left_stick_x;
-            double G1RightStickX = -reverseControls * gamepad1.right_stick_x;
+            double  G1LeftStickY  = reverseControls * gamepad1.left_stick_y;
+            double  G1RightStickY = reverseControls * gamepad1.right_stick_y;
+            double  G1LeftStickX  = -reverseControls * gamepad1.left_stick_x;
+            double  G1RightStickX = -reverseControls * gamepad1.right_stick_x;
             boolean G1RightBumper = gamepad1.right_bumper;
-            boolean G1LeftBumper = gamepad1.left_bumper;
+            boolean G1LeftBumper  = gamepad1.left_bumper;
+            double  G2LeftStickY  = gamepad2.left_stick_y * 0.2;
+            double  G2RightStickY = gamepad2.right_stick_y * 0.2;
 
-            double G2LeftStickY = gamepad2.left_stick_y * 0.2;
-            double G2RightStickY = gamepad2.right_stick_y * 0.2;
-
-            // strafe  Mode
+            // strafe Mode (allows sideways motion)
             frontLeftDrive.setPower(G1LeftStickY + G1RightStickX + G1LeftStickX);
             backLeftDrive.setPower(G1LeftStickY + G1RightStickX - G1LeftStickX);
             backRightDrive.setPower(G1LeftStickY - G1RightStickX + G1LeftStickX);
             frontRightDrive.setPower(G1LeftStickY - G1RightStickX - G1LeftStickX);
+/*
+            // Braking mechanism
+            if(G2LeftStickY == 0){
+                frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+                frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            // grabberArm controller uses the y button to move out and the a button to retract the grabberArm
+                frontLeftDrive.setTargetPosition(frontLeftDrive.getCurrentPosition());
+                backLeftDrive.setTargetPosition(backLeftDrive.getCurrentPosition());
+                backRightDrive.setTargetPosition(backRightDrive.getCurrentPosition());
+                frontRightDrive.setTargetPosition(frontRightDrive.getCurrentPosition());
 
-            //liftMotor.setPower(G2LeftStickY);
-            //slideMotor.setPower(G2RightStickY);
+                frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+*/
+            // Optional Lift control
+//          liftMotor.setPower(G2LeftStickY);
+//          slideMotor.setPower(G2RightStickY);
 
+            // Grabber controls
             if(gamepad2.a){
                 grabServo.setPosition(0);
                 servo.setPosition(0.5);
@@ -147,70 +165,60 @@ public class BasicOpMode_Linear extends LinearOpMode {
                 servo.setPosition(0);
             }
 
-
-            // Change the control direction with the x button
+            // Reverse controls with the x button
             if (gamepad1.x){
                 reverseControls = -reverseControls;
                 telemetry.addData("Controls Status", "Direction: " + reverseControls);
             }
 
-
+            // SLOW mode and FAST mode. Works by halving the reverseControls variable
             if (gamepad1.y){
-                if(reverseControls == 1){
+                if(reverseControls == 1 || reverseControls == -1){
                     reverseControls = reverseControls*0.5;
                     telemetry.addData("Controls Status", "SLOW MODE");
                 }
-                else if(reverseControls == 0.5){
+                else if(reverseControls == 0.5 || reverseControls == -0.5){
                     reverseControls = reverseControls*2;
                     telemetry.addData("Controls Status", "FAST MODE");
                 }
                 telemetry.update();
             }
+/*
+            // Lift_Encoder.java
+            // TLift is the top lift, BLift is the bottom lift.
+            double TLiftPower;
+            double BLiftPower;
+            int TLiftLimit = 1080;
+            int BLiftLimit = 720;
+            int LiftSensitivity = 5; //360 will move from 0 to 90 degrees in joystick position 0 to 1.
 
-            /*if(G2LeftStickY == 0){
-                liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                liftMotor.setTargetPosition(liftMotor.getCurrentPosition());
-                liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            else {
-                liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }*/
+            // YOU MAY NEED TO CHANGE THE DIRECTION OF THIS STICK.
+            double TLiftStick = -gamepad2.left_stick_y;
+            double BLiftStick = -gamepad2.right_stick_y;
+            TLiftPower = Range.clip(TLiftStick, -1.0, 1.0) ;
+            BLiftPower = Range.clip(BLiftStick, -1.0, 1.0);
 
-            double liftPower;
-            double slidePower;
-            int sensitivity = 10; //360 will move from 0 to 90 degrees in joystick position 0 to 1.
-            int liftLimit = 1080;
-            int slideLimit = 720;
+            TLiftPosition += (int)TLiftPower*LiftSensitivity;
+            BLiftPosition += (int)BLiftPower*LiftSensitivity;
 
-            // YOU MAY NEED TO CHANGE THE DIRECTION OF THIS STICK. RIGHT NOW IT IS NEGATIVE.
-            double liftStick = -gamepad2.left_stick_y;
-            double slideStick = -gamepad2.right_stick_y;
-            liftPower = Range.clip(liftStick, -1.0, 1.0) ;
-            slidePower = Range.clip(slideStick, -1.0, 1.0);
-
-            liftPosition += (int)liftPower*sensitivity;
-            slidePosition += (int)slidePower*sensitivity;
-
-            liftPosition = Range.clip(liftPosition, 0, liftLimit);
-            slidePosition = Range.clip(slidePosition, 0, slideLimit);
+            TLiftPosition = Range.clip(TLiftPosition, 0, TLiftLimit);
+            BLiftPosition = Range.clip(BLiftPosition, 0, BLiftLimit);
 
             // MOVES UP FROM POSITION 0 TO 90 DEGREES UP.
-            liftMotor.setTargetPosition(liftPosition);
-            liftMotor.setPower(0.4);
-            slideMotor.setTargetPosition(slidePosition);
-            slideMotor.setPower(0.4);
+            TLiftMotor.setTargetPosition(TLiftPosition);
+            TLiftMotor.setPower(0.2);
+            BLiftMotor.setTargetPosition(BLiftPosition);
+            BLiftMotor.setPower(0.4);
 
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
+            // SET MODE TO RUN TO POSITION
+            TLiftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BLiftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //END Lift_Encoder.java
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-//            telemetry.addData("Motors", "left (%.2f), right (%.2f)", data);
             telemetry.update();
+            */
         }
     }
 }
