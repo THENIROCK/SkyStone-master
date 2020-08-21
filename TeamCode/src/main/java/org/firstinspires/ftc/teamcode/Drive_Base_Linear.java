@@ -32,15 +32,20 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="Drive_Bas_Linear", group="Linear Opmode")
+
+@TeleOp(name="Drive_Base_Linear", group="Linear Opmode")
 //@Disabled
 public class Drive_Base_Linear extends LinearOpMode {
 
+    private DistanceSensor groundSonic;
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     // 152 rpm
@@ -73,10 +78,12 @@ public class Drive_Base_Linear extends LinearOpMode {
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        groundSonic = hardwareMap.get( DistanceSensor.class, "ground_sonic");
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -84,7 +91,6 @@ public class Drive_Base_Linear extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
             // setup the inputs
             double  G1LeftStickY  = reverseControls * gamepad1.left_stick_y;
             double  G1RightStickY = reverseControls * gamepad1.right_stick_y;
@@ -92,10 +98,10 @@ public class Drive_Base_Linear extends LinearOpMode {
             double  G1RightStickX = reverseControls * gamepad1.right_stick_x;
 
             // strafe Mode (allows sideways motion)
-            backRightDrive.setPower(G1LeftStickX + G1RightStickX + G1LeftStickY);
-            backLeftDrive.setPower(G1LeftStickX + G1RightStickX - G1LeftStickY);
-            frontLeftDrive.setPower(G1LeftStickX - G1RightStickX + G1LeftStickY);
-            frontRightDrive.setPower(G1LeftStickX - G1RightStickX - G1LeftStickY);
+            backRightDrive.setPower(-G1LeftStickX + G1RightStickX + G1LeftStickY);
+            backLeftDrive.setPower(-G1LeftStickX + G1RightStickX - G1LeftStickY);
+            frontLeftDrive.setPower(-G1LeftStickX - G1RightStickX + G1LeftStickY);
+            frontRightDrive.setPower(-G1LeftStickX - G1RightStickX - G1LeftStickY);
 
             // Reverse controls with the x button
             if (gamepad1.x){
