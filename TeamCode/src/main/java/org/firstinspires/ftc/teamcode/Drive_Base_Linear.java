@@ -45,7 +45,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //@Disabled
 public class Drive_Base_Linear extends LinearOpMode {
 
-    private DistanceSensor groundSonic;
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     // 152 rpm
@@ -57,7 +56,11 @@ public class Drive_Base_Linear extends LinearOpMode {
     // 100 rpm
     private DcMotor backRightDrive = null;
 
-    private double motorWeight = 0.65789473684;
+    private DcMotor wobbleMotor = null;
+
+    private Servo servo;
+
+    int wobblePos = 0;
 
     private double reverseControls = 1;
 
@@ -69,11 +72,12 @@ public class Drive_Base_Linear extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        frontLeftDrive  = hardwareMap.get(DcMotor.class, "front_left_drive");
-        frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
-        backLeftDrive  = hardwareMap.get(DcMotor.class, "back_left_drive");
-        backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
-
+        frontLeftDrive  = hardwareMap.get(DcMotor.class, "frontLeftDrive");
+        frontRightDrive = hardwareMap.get(DcMotor.class, "frontRightDrive");
+        backLeftDrive  = hardwareMap.get(DcMotor.class, "backLeftDrive");
+        backRightDrive = hardwareMap.get(DcMotor.class, "backRightDrive");
+        wobbleMotor = hardwareMap.get(DcMotor.class, "wobbleMotor");
+        servo = hardwareMap.servo.get("servo");
 
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -83,7 +87,9 @@ public class Drive_Base_Linear extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        groundSonic = hardwareMap.get( DistanceSensor.class, "ground_sonic");
+        wobbleMotor.setDirection(DcMotor.Direction.REVERSE);
+        wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -96,6 +102,11 @@ public class Drive_Base_Linear extends LinearOpMode {
             double  G1RightStickY = reverseControls * gamepad1.right_stick_y;
             double  G1LeftStickX  = reverseControls * gamepad1.left_stick_x;
             double  G1RightStickX = reverseControls * gamepad1.right_stick_x;
+
+            double liftPower;
+            int sensitivity = 360; //360 will move from 0 to 90 degrees in joystick position 0 to 1.
+            // YOU MAY NEED TO CHANGE THE DIRECTION OF THIS STICK. RIGHT NOW IT IS NEGATIVE.
+            double liftStick = -gamepad2.left_stick_y;
 
             // strafe Mode (allows sideways motion)
             backRightDrive.setPower(-G1LeftStickX + G1RightStickX + G1LeftStickY);
@@ -121,6 +132,22 @@ public class Drive_Base_Linear extends LinearOpMode {
                 }
                 telemetry.update();
             }
+
+            if(gamepad2.a){
+                servo.setPosition(0.5);
+            }
+            if(gamepad2.b){
+                servo.setPosition(0);
+            }
+
+            liftPower = Range.clip(liftStick, -1.0, 1.0) ;
+
+            wobblePos += (int)liftPower*sensitivity;
+            wobblePos = Range.clip(wobblePos, 0, 360);
+
+            // MOVES UP FROM POSITION 0 TO 90 DEGREES UP.
+            wobbleMotor.setTargetPosition(wobblePos);
+            wobbleMotor.setPower(0.2);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());

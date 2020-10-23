@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Lift_Encoder", group="Linear Opmode")
 //@Disabled
-public class LiftEncoder extends LinearOpMode {
+public class    LiftEncoder extends LinearOpMode {
 
     private DcMotor liftMotor;
     int liftPosition = 0;
